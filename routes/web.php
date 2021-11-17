@@ -23,6 +23,11 @@ Route::get('/dashboard', function () {
 
 require __DIR__.'/auth.php';
 
-Route::group(['middleware' => ['admin']], function () {
-    Route::get('/users', 'UserController@list')->name('users.list');
+Route::group(['middleware' => ['auth']], function () {
+    //admin routes
+    Route::get('/users', 'UserController@list')->name('users.list')->middleware('admin');
+
+    //user accessible routes
+    Route::get('/user/view/{id}', 'UserController@view')->name('user.view');
+    Route::post('/user/update/{id}', 'UserController@update')->name('user.update');
 });

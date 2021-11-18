@@ -29,8 +29,16 @@
 
             <!-- Page Content -->
             <main>
+                <div class="flex flex-row justify-center">
+                    <!-- Session Status -->
+                    <x-auth-session-status class="mb-4" :status="session('status')" />
+
+                    <!-- Validation Errors -->
+                    <x-auth-validation-errors class="mb-4" :errors="$errors" />
+                </div>
                 {{ $slot }}
             </main>
         </div>
+        <script src="{{ mix('js/app.js') }}"></script>
     </body>
 </html>

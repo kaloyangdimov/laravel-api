@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use App\Jobs\UserRegistered;
 
 class RegisteredUserController extends Controller
 {
@@ -45,7 +46,13 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($user));
+        $notifiableUsers = User::where('is_admin', User::IS_ADMIN_YES)->where('active', User::ACTIVE_YES)->get();
+
+        foreach ($notifiableUsers as $singleUser) {
+                $mailList[] = $singleUser->email;
+        }
+
+        UserRegistered::dispatch($user, $mailList);
 
         return redirect('/')->with('status', __('custom.register_message'));
     }

@@ -24,9 +24,10 @@ class UserRequest extends FormRequest
     public function rules()
     {
         return [
+            'name'     => 'nullable|string|max:255',
             'active'   => 'nullable|boolean',
             'is_admin' => 'nullable|boolean',
-            'email'    => 'required|email|unique:App\Models\User,email,'. $this->id.',id'
+            'email'    => 'required|email|max:255|unique:App\Models\User,email,'.$this->user->id.',id'
         ];
     }
 }

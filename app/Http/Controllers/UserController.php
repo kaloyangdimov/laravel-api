@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -16,23 +16,34 @@ class UserController extends Controller
         return view('users.list', ['users' => $users]);
     }
 
-    public function view(Request $request)
+    public function show(User $user)
     {
-        $validator = Validator::make(['id' => $request->id], [
-            'id' => 'required|exists:users,id'
-        ]);
-
-        if ($validator->fails()) {
-            return back();
-        }
-
-        $user = User::where('id', $request->id)->first();
-
         return view('users.edit', ['user' => $user]);
     }
 
-    public function update(UserRequest $user)
+    public function update(UserRequest $userRequest, User $user)
     {
-       dd($user->all());
+        $postAttributes = $userRequest->validated();
+        $user->update($postAttributes);
+
+        return redirect()->route('user.show', ['user' => $user])->with('status', __('custom.success_update'));
+    }
+
+    public function destroy(User $user)
+    {
+        $this->authorize('delete', $user);
+        $user->delete();
+
+        if (auth()->id() == $user->id) {
+            Auth::guard('web')->logout();
+
+            request()->session()->invalidate();
+
+            request()->session()->regenerateToken();
+
+            return redirect('/')->with('status', __('custom.account_deleted'));
+        }
+
+        return redirect()->route('users.list')->with('status', __('custom.user_deleted'));
     }
 }

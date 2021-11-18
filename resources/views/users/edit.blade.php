@@ -23,19 +23,28 @@
                     @if ($user->is_admin)
                         <label for="name">{{__('custom.is_admin')}}</label>
                         <select name="is_admin" id="is_admin" class="block mt-1 w-full">
-                            @foreach ($adminStates as $ind => $label)
-                                <option value="{{ $ind }}">{{ $label }}</option>
+                            @foreach ($adminStates as $index => $adminLabel)
+                                <option value="{{ $index }}"
+                                    {{ !empty(old()) && old('is_admin') == $index ? 'selected' : ($user->is_admin == $index ? 'selected' : '') }}
+                                >{{ $adminLabel }}</option>
+                            @endforeach
+                        </select>
+                        <label for="active">{{__('custom.active')}}</label>
+                        <select name="active" id="active" class="block mt-1 w-full">
+                            @foreach ($activeStates as $ind => $label)
+                                <option value="{{ $ind }}"
+                                {{ !empty(old()) && old('active') == $ind ? 'selected' : ($user->active == $ind ? 'selected' : '') }}
+                                >{{ $label }}</option>
                             @endforeach
                         </select>
                     @endif
-                    <label for="active">{{__('custom.active')}}</label>
-                    <select name="active" id="active" class="block mt-1 w-full">
-                        @foreach ($activeStates as $ind => $label)
-                            <option value="{{ $ind }}">{{ $label }}</option>
-                        @endforeach
-                    </select>
                     <x-button class="mt-2 bg-indigo-700">
                         {{ __('custom.edit') }}
+                    </x-button>
+                </form>
+                <form action="{{route('user.delete', $user->id)}}">
+                    <x-button class="mt-2 bg-red-700 js-confirm" data-confirm="{{ __('custom.are_you_sure') }}">
+                        {{ __('custom.delete') }}
                     </x-button>
                 </form>
             </div>

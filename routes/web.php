@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +29,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/users', 'UserController@list')->name('users.list')->middleware('admin');
 
     //user accessible routes
-    Route::get('/user/view/{id}', 'UserController@view')->name('user.view');
-    Route::post('/user/update/{id}', 'UserController@update')->name('user.update');
+    Route::get('/user/view/{user}', 'UserController@show')->name('user.show');
+    Route::match(['get', 'post'], '/user/update/{user}', 'UserController@update')->name('user.update');
+    Route::match(['get', 'post'], '/user/delete/{user}', 'UserController@destroy')->name('user.delete');
 });

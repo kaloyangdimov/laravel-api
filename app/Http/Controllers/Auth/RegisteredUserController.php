@@ -48,11 +48,13 @@ class RegisteredUserController extends Controller
 
         $notifiableUsers = User::where('is_admin', User::IS_ADMIN_YES)->where('active', User::ACTIVE_YES)->get();
 
-        foreach ($notifiableUsers as $singleUser) {
-                $mailList[] = $singleUser->email;
-        }
+        if ($notifiableUsers->isNotEmpty()) {
+            foreach ($notifiableUsers as $singleUser) {
+                    $mailList[] = $singleUser->email;
+            }
 
-        UserRegistered::dispatch($user, $mailList);
+            UserRegistered::dispatch($user, $mailList);
+        }
 
         return redirect('/')->with('status', __('custom.register_message'));
     }

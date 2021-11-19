@@ -42,7 +42,7 @@
                         {{ __('custom.edit') }}
                     </x-button>
                 </form>
-                <form action="{{route('user.delete', $user->id)}}">
+                <form method="DELETE" action="{{route('user.delete', $user->id)}}"> <!-- DELETE????? -->
                     <x-button class="mt-2 bg-red-700 js-confirm" data-confirm="{{ __('custom.are_you_sure') }}">
                         {{ __('custom.delete') }}
                     </x-button>

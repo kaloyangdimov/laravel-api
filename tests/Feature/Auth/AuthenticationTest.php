@@ -42,4 +42,18 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
     }
+
+    public function test_users_can_not_authenticate_with_inactive_profile()
+    {
+        $user = User::factory()->create();
+        $user->active = false;
+        $user->save();
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ]);
+
+        $this->assertGuest();
+    }
 }

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Models\User;
+use App\Http\Controllers\ApiServices\BlizzRequestService;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,4 +32,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/user/view/{user}', 'UserController@show')->name('user.show');
     Route::match(['get', 'post'], '/user/update/{user}', 'UserController@update')->name('user.update');
     Route::match(['get', 'post'], '/user/delete/{user}', 'UserController@destroy')->name('user.delete');
+    Route::match(['get', 'post'], '/authAccess', 'WarcraftController@authorizeAccess');
+    Route::match(['get', 'post'], '/createtoken', 'WarcraftController@createToken');
+    Route::match(['get', 'post'], '/getProfileData', 'WarcraftController@getProfile');
+    Route::match(['get', 'post'], '/view/char/{realmID}/{charID}', 'WarcraftController@getCharacterData')->name('view.char');
 });

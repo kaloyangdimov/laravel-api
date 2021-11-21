@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redis;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -32,6 +33,14 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = auth()->user();
+        if (isset($user->token_valid_to) && $user->token_valid_to > now()) {
+            session()->put('blizzAccessToken', $user->token);
+        } else {
+            $user->token = null;
+            $user->token_valid_to = null;
+        }
+
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
@@ -43,6 +52,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request)
     {
+        Redis::del('profile-'.auth()->user()->token);
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

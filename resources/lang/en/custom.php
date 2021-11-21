@@ -23,4 +23,18 @@ return [
     'account_deleted' => 'Account deleted',
     'user_deleted' => 'User deleted',
     'are_you_sure' => 'Are you sure?',
+    'wow_characters' => 'Wow Characters',
+    'account' => 'Account',
+    'total_number_deaths' => 'Total number of deaths',
+    'total_gold_gained' => 'Total gold gained',
+    'total_gold_lost' => 'Total gold lost',
+    'total_item_value_gained' => 'Total item value gained',
+    'level_number_deaths' => 'Level number of deaths',
+    'level_gold_gained' => 'Level gold gained',
+    'level_gold_lost' => 'Level gold lost',
+    'level_item_value_gained' => 'Level item value gained',
+    'character_list' => 'Character list',
+    'character_view' => 'Character view',
+    'new_user_registration' => 'New user registration',
+    'no_char' => 'No characters found'
 ];

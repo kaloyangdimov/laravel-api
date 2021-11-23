@@ -3,11 +3,24 @@
 namespace App\Http\Controllers\ApiServices;
 
 use App\Http\Controllers\Controller;
+use App\Models\Warcraft;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class BlizzardApiService extends Controller
 {
+    private $error;
+
+    private function setError($error)
+    {
+        $this->error = $error;
+    }
+
+    public function getError()
+    {
+        return $this->error;
+    }
+
     /**
      * API call for access token creation
      *
@@ -24,40 +37,60 @@ class BlizzardApiService extends Controller
             'client_id'    => env('BLIZZ_CLIENT_ID')
         ]);
 
-        if ($response->ok()) {
-            return json_decode($response->body());
-        } else {
-            return false;
+        if ($response->failed()) {
+            $this->setError(json_decode($response->body())->error_description);
+            return;
         }
+
+        return json_decode($response->body());
     }
 
     public function getProfile(string $accessToken)
     {
-        $target = 'https://eu.api.blizzard.com/profile/user/wow';
+        $target = Warcraft::WOW_API_BASE_ENDPOINT . Warcraft::WOW_PROFILE_BASE;
         $response = HTTP::get($target, [
-            'namespace'    => 'profile-eu',
+            'namespace'    => Warcraft::WOW_PROFILE_NAMESPACE,
             'access_token' => $accessToken
         ]);
 
-        if ($response->ok()) {
-            return json_decode($response->body())->wow_accounts;
-        } else {
-            return false;
+        if ($response->failed()) {
+            $this->setError(json_decode($response->body())->detail);
+            return;
         }
+
+        return json_decode($response->body())->wow_accounts;
     }
 
     public function getCharacterInfo(string $accessToken, int $realmId, int $characterId)
     {
-        $target = 'https://eu.api.blizzard.com/profile/user/wow/protected-character/'.$realmId .'-'.$characterId;
+        $target = Warcraft::WOW_API_BASE_ENDPOINT . Warcraft::WOW_PROFILE_BASE.'/protected-character/'.$realmId .'-'.$characterId;
         $response = HTTP::get($target, [
-            'namespace'    => 'profile-eu',
+            'namespace'    => Warcraft::WOW_PROFILE_NAMESPACE,
             'access_token' => $accessToken
         ]);
 
-        if ($response->ok()) {
-            return json_decode($response->body());
-        } else {
-            return false;
+        if ($response->failed()) {
+            $this->setError(json_decode($response->body())->error_description);
+            return;
         }
+
+        return json_decode($response->body());
+    }
+
+    public function getAchievments(string $accessToken, string $realm, string $characterName)
+    {
+        $target = Warcraft::WOW_API_BASE_ENDPOINT.Warcraft::WOW_CHARACTER_BASE_URL.$realm.'/'.$characterName.'/achievements';
+
+        $response = HTTP::get($target, [
+            'namespace'     => Warcraft::WOW_PROFILE_NAMESPACE,
+            'access_token'  => $accessToken,
+        ]);
+
+        if ($response->failed()) {
+            $this->setError(json_decode($response->body())->error_description);
+            return;
+        }
+
+        return json_decode($response->body());
     }
 }

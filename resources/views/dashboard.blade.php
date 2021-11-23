@@ -18,7 +18,7 @@
                     @else
                     <form action="/getProfileData" method="get">
                         <button type="submit">
-                            Get characters
+                            Character List
                         </button>
                     </form>
                     @endif

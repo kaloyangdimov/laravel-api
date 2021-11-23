@@ -13,9 +13,9 @@
                     {{$characterData->character->realm->name->en_US}}<br>
                     {{$characterData->position->zone->name->en_US}} {{$characterData->position->map->name->en_US}}<br>
                     @foreach ($characterData->protected_stats as $statName => $statValue)
-                            {{ __('custom.'.$statName) }}: {{number_format($statValue, 0, '.', ' ')}}<br>
+                        {{ __('custom.'.$statName) }}: {{number_format($statValue, 0, '.', ' ')}}<br>
                     @endforeach
-
+                   <b> <a href="{{route('view.char.achievments', [$characterData->character->realm->slug, $characterData->name])}}">{{__('custom.achievements')}}</a></b>
                 </div>
             </div>
         </div>

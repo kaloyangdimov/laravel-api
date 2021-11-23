@@ -4,13 +4,52 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiServices\BlizzardApiService;
+use App\Http\Requests\BlizzardCharacterRequest;
+use App\Http\Requests\CharacterAchievmentRequest;
 use Illuminate\Support\Facades\Redis;
 
 class WarcraftController extends Controller
 {
+    private $blizzApiService;
+
     public function __construct(BlizzardApiService $service)
     {
-        $this->service = $service;
+        $this->blizzApiService = $service;
+    }
+
+    /**
+     * Stores the returned token in DB for future use
+     */
+    private function storeUserToken($token, $expires)
+    {
+        $user = auth()->user();
+        $user->token = $token;
+        $user->token_valid_to = \Carbon\Carbon::now()->add($expires, 'seconds');
+        $user->save();
+
+        session()->put('blizzAccessToken', $token);
+    }
+
+      /**
+     * Store data in cache if no data exists for given key
+     */
+    private function storeRedisData($key, $data)
+    {
+        if (!Redis::exists($key)) {
+            Redis::set($key, $data);
+        }
+    }
+
+    /**
+     * get cached data, if any
+     */
+    private function getRedisProfileData($key)
+    {
+       if (!is_null($key)) {
+            return json_decode(Redis::get($key));
+       }
+
+       return false;
     }
 
     /**
@@ -37,14 +76,13 @@ class WarcraftController extends Controller
      */
     public function createToken(Request $request)
     {
-        $tokenResponse = $this->service->createAccessToken($request->code);
+        $tokenResponse = $this->blizzApiService->createAccessToken($request->code);
 
-        $user = auth()->user();
-        $user->token = $tokenResponse->access_token;
-        $user->token_valid_to = \Carbon\Carbon::now()->add($tokenResponse->expires_in, 'seconds');
-        $user->save();
+        if ($this->blizzApiService->getError()) {
+            return redirect()->route('dashboard')->withErrors(['token' => $this->blizzApiService->getError()]);
+        }
 
-        session()->put('blizzAccessToken', $tokenResponse->access_token);
+        $this->storeUserToken($tokenResponse->access_token, $tokenResponse->expires_in);
 
         return redirect()->route('dashboard');
     }
@@ -54,31 +92,46 @@ class WarcraftController extends Controller
      */
     public function getProfile()
     {
-        $redis = false;
+        $profileData = $this->getRedisProfileData('profile-'.auth()->user()->token);
 
-        if (isset(auth()->user()->token) && Redis::get('profile-'.auth()->user()->token)) {
-            $response = json_decode(Redis::get('profile-'.auth()->user()->token));
-            $redis = true;
-        } else {
-            $response = $this->service->getProfile(session()->get('blizzAccessToken'));
-        }
+        if (!$profileData) {
+            $profileData = $this->blizzApiService->getProfile(session()->get('blizzAccessToken'));
 
-        if ($response) {
-            if (!$redis) {
-                Redis::set('profile-'.auth()->user()->token, json_encode($response));
+            if ($this->blizzApiService->getError()) {
+                return redirect()->route('dashboard')->withErrors(['token' => $this->blizzApiService->getError()]);
             }
-
-            return view('wow.profile', ['accounts' => $response]);
         }
 
-        return back()->withErrors(['character' => __('custom.no_char')]);
+        $this->storeRedisData('profile-'.auth()->user()->token, json_encode($profileData));
+
+        return view('wow.profile', ['accounts' => $profileData]);
     }
 
-    public function getCharacterData(Request $request)
+    /**
+     * Get data for specific character
+     */
+    public function getCharacterData(BlizzardCharacterRequest $request)
     {
-        $charactedData = $this->service->getCharacterInfo(auth()->user()->token, $request->realmID, $request->charID);
+        $charactedData = $this->blizzApiService->getCharacterInfo($request->userToken, $request->realmID, $request->charID);
+
+        if ($this->blizzApiService->getError()) {
+            return back()->withErrors(['token' => $this->blizzApiService->getError()]);
+        }
 
         return view('wow.character', ['characterData' => $charactedData]);
     }
 
+    /**
+     * Get achievments for specific character
+     */
+    public function getCharacterAchievments(CharacterAchievmentRequest $request)
+    {
+        $achievmentsData = $this->blizzApiService->getAchievments($request->userToken, $request->realmSlug, $request->characterName);
+
+        if ($this->blizzApiService->getError()) {
+            return back()->withErrors(['token' => $this->blizzApiService->getError()]);
+        }
+
+        return view('wow.character-achievments', ['achievmentsData' => $achievmentsData]);
+    }
 }

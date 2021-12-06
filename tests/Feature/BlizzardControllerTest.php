@@ -13,20 +13,16 @@ class BlizzardControllerTest extends TestCase
 
     public function test_character_get_fails_with_strings()
     {
-        $response = $this->get('/view/char/test/test');
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->get('/view/char/test/test');
         $response->assertStatus(302);
-        $this->assertJson(json_encode(
+
+        $response->assertSessionHasErrors(
             [
-                'errors' => [
-                    'charID' => [
-                        'Character ID must be an integer'
-                    ],
-                    'realmID' => [
-                        'Realm ID must be an integer'
-                    ]
-                ]
+                'charID'  => 'Character ID must be an integer',
+                'realmID' => 'Realm ID must be an integer'
             ]
-        ));
+        );
     }
 
     public function test_character_get_fails_with_missing_route_params()

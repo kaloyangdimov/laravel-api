@@ -52,7 +52,10 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request)
     {
-        Redis::del('profile-'.auth()->user()->token);
+        if ($this->checkRedis()) {
+            Redis::del('profile-'.auth()->user()->token);
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

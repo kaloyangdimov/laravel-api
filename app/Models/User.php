@@ -66,4 +66,9 @@ class User extends Authenticatable
             self::IS_ADMIN_NO  => __('custom.no'),
         ];
     }
+
+    public static function getAdminUsers()
+    {
+        return  self::where('is_admin', User::IS_ADMIN_YES)->where('active', User::ACTIVE_YES)->get();
+    }
 }

@@ -37,5 +37,6 @@ return [
     'character_view' => 'Character view',
     'new_user_registration' => 'New user registration',
     'no_char' => 'No characters found',
-    'achievements' => 'Achievements'
+    'achievements' => 'Achievements',
+    'user_was_deleted' => 'User was deleted',
 ];

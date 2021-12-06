@@ -31,15 +31,12 @@ class UsersControllerTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post('/user/update/'.$user->id, ['name' => 'Test Test', 'email' => '']);
-        $this->assertJson(json_encode(
+
+        $response->assertSessionHasErrors(
             [
-                'errors' => [
-                    'email' => [
-                        'The email field is required'
-                    ]
-                ]
+                'email' =>  'The email field is required.'
             ]
-        ));
+        );
 
         $response->assertStatus(302);
     }
@@ -65,13 +62,28 @@ class UsersControllerTest extends TestCase
         $response->assertStatus(302);
     }
 
-    public function test_user_deletes_can_self()
+    public function test_user_can_delete_self()
     {
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post('/user/delete/'.$user->id);
 
         $this->assertTrue(!is_null(User::where('id', $user->id)->withTrashed()->first()->deleted_at));
+
+        $response->assertRedirect('/');
+    }
+
+    public function test_user_cannot_set_self_as_admin_when_not_admin()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post('/user/update/'.$user->id, ['name' => $user->name, 'email' => $user->email, 'is_admin' => 1]);
+
+        $response->assertSessionHasErrors(
+            [
+                'is_admin' => 'Error updating user'
+            ]
+        );
 
         $response->assertRedirect('/');
     }

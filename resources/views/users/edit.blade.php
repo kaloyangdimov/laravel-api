@@ -20,7 +20,7 @@
                     <label for="name" class="mt-2">{{__('custom.email')}}</label>
                     <x-input id="email" class="block mt-1 w-full" type="text" name="email" :value="old('email') ? old('email') : $user->email" required autocomplete="off" />
 
-                    @if ($user->is_admin)
+                    @if (auth()->user()->is_admin)
                         <label for="name">{{__('custom.is_admin')}}</label>
                         <select name="is_admin" id="is_admin" class="block mt-1 w-full">
                             @foreach ($adminStates as $index => $adminLabel)

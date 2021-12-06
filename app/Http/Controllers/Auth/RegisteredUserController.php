@@ -46,11 +46,11 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $notifiableUsers = User::where('is_admin', User::IS_ADMIN_YES)->where('active', User::ACTIVE_YES)->get();
+        $notifiableUsers = User::getAdminUsers();
 
         if ($notifiableUsers->isNotEmpty()) {
             foreach ($notifiableUsers as $singleUser) {
-                    $mailList[] = $singleUser->email;
+                $mailList[] = $singleUser->email;
             }
 
             UserRegistered::dispatch($user, $mailList);

@@ -45,6 +45,9 @@ class BlizzardApiService extends Controller
         return json_decode($response->body());
     }
 
+    /**
+     * Gets the user's profile data
+     */
     public function getProfile(string $accessToken)
     {
         $target = Warcraft::WOW_API_BASE_ENDPOINT . Warcraft::WOW_PROFILE_BASE;
@@ -61,6 +64,9 @@ class BlizzardApiService extends Controller
         return json_decode($response->body())->wow_accounts;
     }
 
+    /**
+     * Gets a character's details
+     */
     public function getCharacterInfo(string $accessToken, int $realmId, int $characterId)
     {
         $target = Warcraft::WOW_API_BASE_ENDPOINT . Warcraft::WOW_PROFILE_BASE.'/protected-character/'.$realmId .'-'.$characterId;
@@ -77,6 +83,9 @@ class BlizzardApiService extends Controller
         return json_decode($response->body());
     }
 
+    /**
+     * Gets a character's achievments
+     */
     public function getAchievments(string $accessToken, string $realm, string $characterName)
     {
         $target = Warcraft::WOW_API_BASE_ENDPOINT.Warcraft::WOW_CHARACTER_BASE_URL.$realm.'/'.$characterName.'/achievements';

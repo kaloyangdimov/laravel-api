@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\AdminsCreateAdmins;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UserRequest extends FormRequest
@@ -26,7 +27,7 @@ class UserRequest extends FormRequest
         return [
             'name'     => 'nullable|string|max:255',
             'active'   => 'nullable|boolean',
-            'is_admin' => 'nullable|boolean',
+            'is_admin' => ['nullable', 'boolean', new AdminsCreateAdmins()],
             'email'    => 'required|email|max:255|unique:App\Models\User,email,'.$this->user->id.',id'
         ];
     }

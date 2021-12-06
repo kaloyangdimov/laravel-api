@@ -7,6 +7,7 @@ use App\Http\Controllers\ApiServices\BlizzardApiService;
 use App\Http\Requests\BlizzardCharacterRequest;
 use App\Http\Requests\CharacterAchievmentRequest;
 use Illuminate\Support\Facades\Redis;
+use Exception;
 
 class WarcraftController extends Controller
 {
@@ -30,13 +31,17 @@ class WarcraftController extends Controller
         session()->put('blizzAccessToken', $token);
     }
 
-      /**
+    /**
      * Store data in cache if no data exists for given key
      */
     private function storeRedisData($key, $data)
     {
-        if (!Redis::exists($key)) {
-            Redis::set($key, $data);
+        try {
+            if (!Redis::exists($key)) {
+                Redis::set($key, $data);
+            }
+        } catch (Exception $ex) {
+            info($ex);
         }
     }
 
@@ -45,11 +50,13 @@ class WarcraftController extends Controller
      */
     private function getRedisProfileData($key)
     {
-       if (!is_null($key)) {
-            return json_decode(Redis::get($key));
-       }
-
-       return false;
+        try {
+            if (!is_null($key)) {
+                return json_decode(Redis::get($key));
+            }
+        } catch (Exception $ex) {
+            info($ex);
+        }
     }
 
     /**

@@ -39,4 +39,5 @@ return [
     'no_char' => 'No characters found',
     'achievements' => 'Achievements',
     'user_was_deleted' => 'User was deleted',
+    'character_data' => 'Character data',
 ];

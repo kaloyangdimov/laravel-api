@@ -3,23 +3,12 @@
 namespace App\Http\Controllers\ApiServices;
 
 use App\Http\Controllers\Controller;
-use App\Models\Warcraft;
-use Illuminate\Http\Request;
+use Exception;
 use Illuminate\Support\Facades\Http;
 
 class BlizzardApiService extends Controller
 {
-    private $error;
-
-    private function setError($error)
-    {
-        $this->error = $error;
-    }
-
-    public function getError()
-    {
-        return $this->error;
-    }
+    protected $apiBaseEndpoint = 'https://eu.api.blizzard.com/';
 
     /**
      * API call for access token creation
@@ -32,74 +21,45 @@ class BlizzardApiService extends Controller
         $response = HTTP::asForm()->withBasicAuth(env('BLIZZ_CLIENT_ID'), env('BLIZZ_CLIENT_SECRET'))
         ->post($target, [
             'grant_type'   => 'authorization_code',
-            'redirect_uri' => 'http://127.0.0.1:8000/createtoken',
+            'redirect_uri' => env('APP_URL').'/createtoken',
             'code'         => $code,
             'client_id'    => env('BLIZZ_CLIENT_ID')
         ]);
 
-        if ($response->failed()) {
-            $this->setError(json_decode($response->body())->error_description);
-            return;
-        }
-
-        return json_decode($response->body());
+        return $response->throw()->json();
     }
 
-    /**
-     * Gets the user's profile data
-     */
-    public function getProfile(string $accessToken)
+    public function generateAuthorizationLink()
     {
-        $target = Warcraft::WOW_API_BASE_ENDPOINT . Warcraft::WOW_PROFILE_BASE;
-        $response = HTTP::get($target, [
-            'namespace'    => Warcraft::WOW_PROFILE_NAMESPACE,
-            'access_token' => $accessToken
+        $target = 'https://eu.battle.net/oauth/authorize';
+        $queryString = http_build_query([
+            'auth_flow'     => 'auth_code',
+            'scope'         => 'wow.profile',
+            'client_id'     => env('BLIZZ_CLIENT_ID'),
+            'response_type' => 'code',
+            'redirect_uri'  => env('APP_URL').'/createtoken',
         ]);
 
-        if ($response->failed()) {
-            $this->setError(json_decode($response->body())->detail);
-            return;
-        }
+        $url = $target.'?'.$queryString;
 
-        return json_decode($response->body())->wow_accounts;
+        return $url;
     }
 
-    /**
-     * Gets a character's details
-     */
-    public function getCharacterInfo(string $accessToken, int $realmId, int $characterId)
+    public function userInfo(string $accessToken)
     {
-        $target = Warcraft::WOW_API_BASE_ENDPOINT . Warcraft::WOW_PROFILE_BASE.'/protected-character/'.$realmId .'-'.$characterId;
+        $target = 'https://eu.battle.net/oauth/userinfo';
         $response = HTTP::get($target, [
-            'namespace'    => Warcraft::WOW_PROFILE_NAMESPACE,
-            'access_token' => $accessToken
-        ]);
-
-        if ($response->failed()) {
-            $this->setError(json_decode($response->body())->error_description);
-            return;
-        }
-
-        return json_decode($response->body());
-    }
-
-    /**
-     * Gets a character's achievments
-     */
-    public function getAchievments(string $accessToken, string $realm, string $characterName)
-    {
-        $target = Warcraft::WOW_API_BASE_ENDPOINT.Warcraft::WOW_CHARACTER_BASE_URL.$realm.'/'.$characterName.'/achievements';
-
-        $response = HTTP::get($target, [
-            'namespace'     => Warcraft::WOW_PROFILE_NAMESPACE,
             'access_token'  => $accessToken,
         ]);
 
         if ($response->failed()) {
-            $this->setError(json_decode($response->body())->error_description);
+            throw new Exception(json_decode($response->body())->error_description);
             return;
         }
 
-        return json_decode($response->body());
+        $response = json_decode($response->body());
+        $response->battletag = urlencode($response->battletag); // prepare data for direct url insertion
+
+        return $response;
     }
 }

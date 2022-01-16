@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Services\CachingService;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
@@ -52,9 +53,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request)
     {
-        if ($this->checkRedis()) {
-            Redis::del('profile-'.auth()->user()->token);
-        }
+        $cachingService = new CachingService();
+
+        $cachingService->deleteRedisProfileData(['wow-profile-', 'diablo-profile-']);
 
         Auth::guard('web')->logout();
 

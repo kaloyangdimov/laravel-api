@@ -44,7 +44,7 @@ class BlizzardControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get('/authAccess');
         $this->assertTrue(
-            $response->getTargetUrl() === 'https://eu.battle.net/oauth/authorize?auth_flow=auth_code&scope=wow.profile&client_id=c5571007a7f6411ea1f08e5ea315241e&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A8000%2Fcreatetoken'
+            $response->getTargetUrl() === 'https://eu.battle.net/oauth/authorize?auth_flow=auth_code&scope=wow.profile&client_id=c5571007a7f6411ea1f08e5ea315241e&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A8000%2F%2Fcreatetoken'
         );
     }
 }

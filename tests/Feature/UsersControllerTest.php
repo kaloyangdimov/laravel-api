@@ -11,11 +11,6 @@ class UsersControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
     public function test_user_edits_name_and_email()
     {
         $user = User::factory()->create();

@@ -9,6 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
+
                     @if (is_null(session()->get('blizzAccessToken')))
                         <form action="/authAccess" method="get">
                             <button type="submit">
@@ -18,7 +19,12 @@
                     @else
                     <form action="/getProfileData" method="get">
                         <button type="submit">
-                            Character List
+                            WoW
+                        </button>
+                    </form>
+                    <form action="/getApiAccount" method="get">
+                        <button type="submit">
+                            Diablo
                         </button>
                     </form>
                     @endif

@@ -12,8 +12,9 @@ The project demonstrates the usage of the following core Laravel features:
 9. Dependancy injection - Warcraft Controller
 10. Login scaffolding is created via Laravel breeze.
 
+11. Added Diablo 3 characters
+
 Future plans 
-1. Extend available character methods/data
-2. Add support for Diablo 3 characters
+1. Extend available character methods/data 
 3. Improve front end - vuejs?
 4. Add logging other than laravel.log for errors

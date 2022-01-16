@@ -33,9 +33,17 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/user/view/{user}', 'UserController@show')->name('user.show');
     Route::match(['get', 'post'], '/user/update/{user}', 'UserController@update')->name('user.update');
     Route::match(['get', 'post'], '/user/delete/{user}', 'UserController@destroy')->name('user.delete');
+
+    //Authorization
     Route::match(['get', 'post'], '/authAccess', 'WarcraftController@authorizeAccess');
     Route::match(['get', 'post'], '/createtoken', 'WarcraftController@createToken');
+
+    //Warcraft
     Route::match(['get', 'post'], '/getProfileData', 'WarcraftController@getProfile');
     Route::match(['get', 'post'], '/view/char/{realmID}/{charID}', 'WarcraftController@getCharacterData')->name('view.char');
     Route::match(['get', 'post'], '/view/char/achievments/{realmSlug}/{characterName}', 'WarcraftController@getCharacterAchievments')->name('view.char.achievments');
+
+    //Diablo
+    Route::match(['get', 'post'], '/getApiAccount', 'DiabloController@getApiAccount');
+    Route::match(['get', 'post'], '/getCharacterInfo/{heroId}', 'DiabloController@getCharacterInfo')->name('diablo.char');
 });
